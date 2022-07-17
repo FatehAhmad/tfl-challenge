@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Tfl.Application.CommonInterfaces.Mappers;
 using Tfl.Application.CommonInterfaces.Handlers;
 using Tfl.Application.RoadStatus.Interfaces;
 using Tfl.Domain.RoadStatus.Models.RequestModels;
@@ -11,37 +12,23 @@ namespace Tfl.Infrastructure.Implementations.RoadStatus
 {
     public class RoadStatusHandler : IHandler<RoadStatusRequest, IEnumerable<RoadStatusResponse>>
     {
-        private readonly IRoadStatusDataSource DataSource;
+        private readonly IRoadStatusDataSource dataSource;
+        private readonly IMapper<IEnumerable<TflRoadStatusResponse>, IEnumerable<RoadStatusResponse>> mapper;
 
-        public RoadStatusHandler(IRoadStatusDataSource dataSource)
+        public RoadStatusHandler(IRoadStatusDataSource dataSource,
+            IMapper<IEnumerable<TflRoadStatusResponse>, IEnumerable<RoadStatusResponse>> mapper)
         {
-            this.DataSource = dataSource;
+            this.dataSource = dataSource;
+            this.mapper = mapper;
         }
 
         public async ValueTask<IEnumerable<RoadStatusResponse>> HandleAsync(RoadStatusRequest request, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
 
-            var response = await DataSource.GetRoadStatus(request, token);
+            var response = await dataSource.GetRoadStatus(request, token);
 
-            return Mapper(response);
-        }
-
-        private List<RoadStatusResponse> Mapper(IEnumerable<TflRoadStatusResponse> response)
-        {
-            var result = new List<RoadStatusResponse>();
-
-            foreach (var roadStatus in response)
-            {
-                result.Add(new RoadStatusResponse
-                    {
-                        Id = roadStatus.Id,
-                        DisplayName = roadStatus.DisplayName,
-                        StatusSeverity = roadStatus.StatusSeverity,
-                        statusSeverityDescription = roadStatus.StatusSeverityDescription
-                    });
-            }
-            return result;
+            return mapper.Map(response);
         }
     }
 }

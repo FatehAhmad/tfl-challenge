@@ -12,14 +12,14 @@ namespace Tfl.Client.Controllers
 {
     public class RoadStatusController
     {
-        private readonly IHandler<RoadStatusRequest, IEnumerable<RoadStatusResponse>> RoadStatusHandler;
-        private readonly RoadStatusRequestValidator RoadStatusRequestValidator;
+        private readonly IHandler<RoadStatusRequest, IEnumerable<RoadStatusResponse>> roadStatusHandler;
+        private readonly RoadStatusRequestValidator roadStatusRequestValidator;
 
         public RoadStatusController(IHandler<RoadStatusRequest, IEnumerable<RoadStatusResponse>> roadStatusHandler,
             RoadStatusRequestValidator roadStatusRequestValidator)
         {
-            this.RoadStatusHandler = roadStatusHandler;
-            this.RoadStatusRequestValidator = roadStatusRequestValidator;
+            this.roadStatusHandler = roadStatusHandler;
+            this.roadStatusRequestValidator = roadStatusRequestValidator;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Tfl.Client.Controllers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var validationResult = await RoadStatusRequestValidator.ValidateAsync(roadStatusRequest, cancellationToken);
+            var validationResult = await roadStatusRequestValidator.ValidateAsync(roadStatusRequest, cancellationToken);
 
             if (!validationResult.IsValid)
             {
@@ -39,7 +39,7 @@ namespace Tfl.Client.Controllers
                 Environment.Exit(1);
             }
 
-            return await RoadStatusHandler.HandleAsync(roadStatusRequest, cancellationToken);
+            return await roadStatusHandler.HandleAsync(roadStatusRequest, cancellationToken);
         }
     }
 }

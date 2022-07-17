@@ -18,6 +18,7 @@ using Tfl.Client.Validators;
 using Tfl.Infrastructure.Implementations.RoadStatus;
 using System.Reflection;
 using Tfl.Application.CommonInterfaces.RouteBuilders;
+using Tfl.Application.CommonInterfaces.Mappers;
 
 namespace Tfl.Client
 {
@@ -27,17 +28,17 @@ namespace Tfl.Client
     /// </summary>
     public class Program
     {
-        private readonly ILogger<Program> Logger;
-        private readonly RoadStatusController RoadStatusController;
-        private readonly IConfigurationBuilder ConfigurationBuilder;
+        private readonly ILogger<Program> logger;
+        private readonly RoadStatusController roadStatusController;
+        private readonly IConfigurationBuilder configurationBuilder;
 
         public Program(ILogger<Program> logger,
             RoadStatusController roadStatusController,
             IConfigurationBuilder configurationBuilder)
         {
-            this.Logger = logger;
-            this.RoadStatusController = roadStatusController;
-            this.ConfigurationBuilder = configurationBuilder;
+            this.logger = logger;
+            this.roadStatusController = roadStatusController;
+            this.configurationBuilder = configurationBuilder;
         }
 
         static async Task Main(string[] args)
@@ -68,6 +69,7 @@ namespace Tfl.Client
                     RegisterServices(assembly, typeof(IHandler<,>), services);
                     RegisterServices(assembly, typeof(IDataProvider), services);
                     RegisterServices(assembly, typeof(IRouteBuilder), services);
+                    RegisterServices(assembly, typeof(IMapper<,>), services);
                     RegisterHttpClients(services, hostContext.Configuration);
                 });
 
@@ -112,14 +114,14 @@ namespace Tfl.Client
 
         private async Task<IEnumerable<RoadStatusResponse>> Run(string args)
         {
-            Logger.LogInformation("Tfl client started.");
+            logger.LogInformation("Tfl client started.");
 
-            return await RoadStatusController.Get(BuildRequest(args), CancellationToken.None);
+            return await roadStatusController.Get(BuildRequest(args), CancellationToken.None);
         }
 
         private RoadStatusRequest BuildRequest(string args)
         {
-            var config = ConfigurationBuilder.AddJsonFile("appsettings.json").Build();
+            var config = configurationBuilder.AddJsonFile("appsettings.json").Build();
             var settings = config.GetSection("TflSettings").Get<TflSettings>();
 
             return new RoadStatusRequest { Id = args, AppId = settings.AppId, ApiKey = settings.AppKey, Path = settings.Path };
