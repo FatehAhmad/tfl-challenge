@@ -10,5 +10,7 @@ namespace Tfl.Client.Configurations
         public string AppId { get; set; }
 
         public string AppKey { get; set; }
+
+        public string Path { get; set; }
     }
 }

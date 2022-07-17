@@ -7,7 +7,7 @@ using Tfl.Domain.RoadStatus.Models.RequestModels;
 using Tfl.Domain.RoadStatus.Models.ResponseModels;
 using Tfl.Domain.RoadStatus.Models.ResponseModels.TflApiResponse;
 
-namespace Tfl.Application.RoadStatus.Handlers
+namespace Tfl.Infrastructure.Implementations.RoadStatus
 {
     public class RoadStatusHandler : IHandler<RoadStatusRequest, IEnumerable<RoadStatusResponse>>
     {
@@ -22,23 +22,23 @@ namespace Tfl.Application.RoadStatus.Handlers
         {
             token.ThrowIfCancellationRequested();
 
-            var dataSourceResponse = await DataSource.GetRoadStatus(request, token);
+            var response = await DataSource.GetRoadStatus(request, token);
 
-            return Mapper(dataSourceResponse);
+            return Mapper(response);
         }
 
-        private List<RoadStatusResponse> Mapper(IEnumerable<TflRoadStatusResponse> dataSourceResponse)
+        private List<RoadStatusResponse> Mapper(IEnumerable<TflRoadStatusResponse> response)
         {
             var result = new List<RoadStatusResponse>();
 
-            foreach (var roadStatus in dataSourceResponse)
+            foreach (var roadStatus in response)
             {
                 result.Add(new RoadStatusResponse
                     {
-                        Id = roadStatus.id,
-                        DisplayName = roadStatus.displayName,
-                        StatusSeverity = roadStatus.statusSeverity,
-                        statusSeverityDescription = roadStatus.statusSeverityDescription
+                        Id = roadStatus.Id,
+                        DisplayName = roadStatus.DisplayName,
+                        StatusSeverity = roadStatus.StatusSeverity,
+                        statusSeverityDescription = roadStatus.StatusSeverityDescription
                     });
             }
             return result;

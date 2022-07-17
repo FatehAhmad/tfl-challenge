@@ -2,35 +2,40 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Tfl.Domain.RoadStatus.Models.RequestModels.TflApiRequest;
+using Tfl.Application.RoadStatus.Interfaces;
+using Tfl.Domain.RoadStatus.Models.RequestModels;
 
 namespace Tfl.Infrastructure.Implementations.RoadStatus
 {
     public class RoadStatusClient
     {
         private readonly IHttpClientFactory clientFactory;
+        private readonly IRoadStatusRouteBuilder routeBuilder;
 
-        public RoadStatusClient(IHttpClientFactory clientFactory)
+        public RoadStatusClient(IHttpClientFactory clientFactory,
+            IRoadStatusRouteBuilder routeBuilder)
         {
             this.clientFactory = clientFactory;
+            this.routeBuilder = routeBuilder;
         }
 
-        public async ValueTask<string> GetResponse(TflRoadStatusRequest request, CancellationToken cancellationToken)
+        public async ValueTask<string> GetResponse(RoadStatusRequest request, CancellationToken cancellationToken)
         {
             var client = clientFactory.CreateClient("tfl");
 
-            var requestUri = $"{client.BaseAddress}{request.Path}{request.Id}";
+            var requestUri = routeBuilder.Build(client.BaseAddress, request);
 
             var response = await client.GetAsync(requestUri, cancellationToken);
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
-                ShortCircuitRequest(request.Id, response);
+                ShortCircuitRequest(request.Id, response, responseString);
             }
-            return await response.Content.ReadAsStringAsync(cancellationToken);
+            return responseString;
         }
 
-        private void ShortCircuitRequest(string id, HttpResponseMessage response)
+        private void ShortCircuitRequest(string id, HttpResponseMessage response, string responseString)
         {
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -40,6 +45,7 @@ namespace Tfl.Infrastructure.Implementations.RoadStatus
             {
                 Console.WriteLine($"Request ended with HttpStatusCode: {response.StatusCode}");
             }
+            Console.WriteLine($"Request details: {responseString}");
             Environment.Exit(1);
         }
     }
