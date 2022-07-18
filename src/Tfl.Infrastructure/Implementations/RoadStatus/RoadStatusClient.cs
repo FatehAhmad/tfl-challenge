@@ -45,7 +45,7 @@ namespace Tfl.Infrastructure.Implementations.RoadStatus
             {
                 Console.WriteLine($"Request ended with HttpStatusCode: {response.StatusCode}");
             }
-            Console.WriteLine($"Request details: {responseString}");
+            Console.WriteLine($"Details: {responseString}");
             Environment.Exit(1);
         }
     }
