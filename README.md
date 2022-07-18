@@ -55,13 +55,13 @@ My approach was to make the software highly configurable and to achieve this I h
 * **AppKey**: Optional, if not present in the appsettings.json then a request is made without this value.
 * **Path**: Path for the road endpoints, ie: road
 
-The point of making the BaseUrl and Path configurable is that Urls often so having them in appsettings.json would make it easier for us to update these values if required.
+The point of making the BaseUrl and Path configurable is that Urls often change so having them in appsettings.json would make it easier for us to update these values if required.
 
 ### Assumptions:-
 
 I have build the software assuming that it is highly possible that I might have to extend the functionality of this application in the future and for this reason I have tried to follow **Clean Architecture** and I have added the following layers in the software:-
 
-* **Client:** Top most layer with which the end users are interacting.
+* **Client:** Top most layer with which the end users would interact.
 * **Application:** Contains the abstractions.
 * **Infrastructure:** Implementation of the abstractions.
 * **Domain:** Model entities.
@@ -72,18 +72,3 @@ I have build the software assuming that it is highly possible that I might have 
 The idea here is to keep the software simple, yet easily extendable, make the software loosely coupled and rely on abstractions instead relying details and make the software easily testable. The point of keeping abstraction and implementations apart is to be able to replace implementation details easily without having the consumer notified that implementation details are changed.
 
 Looking forward to any suggestions and feedback! :)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
